@@ -6,11 +6,17 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:52:31 by edu               #+#    #+#             */
-/*   Updated: 2022/11/08 08:16:38 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/09 18:44:39 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
+
+void	byte_printer(t_byte *byte)
+{
+	printf("\nBYTE!");
+	printf("\n[%d, %d, %d, %d, %d, %d, %d, %d]\n", byte[0].bit, byte[1].bit, byte[2].bit, byte[3].bit, byte[4].bit, byte[5].bit, byte[6].bit, byte[7].bit);
+}
 
 t_byte	*byte_maker(unsigned char c)
 {
@@ -31,39 +37,90 @@ t_byte	*byte_maker(unsigned char c)
 	return (byte);
 }
 
-void	send_signals(char *str, int pid)
+void	byte_sender(t_byte *byte, int *pid)
 {
-	t_byte	*byte;
-	int		i;
+	int	i;
 
 	i = 0;
-	byte = byte_maker(*str);
-	ft_printf("[%d, %d, %d, %d, %d, %d, %d, %d]\n", byte[0].bit, byte[1].bit, byte[2].bit, byte[3].bit, byte[4].bit, byte[5].bit, byte[6].bit, byte[7].bit);
 	while (i < 8)
 	{
 		if (!byte[i].bit)
 		{
-			kill(pid, SIGUSR1);
-			usleep(500);
+			kill(*pid, SIGUSR1);
+			usleep(700);
 		}
 		else
 		{
-			kill(pid, SIGUSR2);
-			usleep(500);
+			kill(*pid, SIGUSR2);
+			usleep(700);
 		}
 		i++;
 	}
 	free(byte);
-	ft_printf("PID = %d, STR = %s\n", pid, str);
+}
+
+int	send_message(char *str, int pid)
+{
+	static char	*msg = 0;
+	static int	server_pid = 0;
+	static int	index = 0;
+	t_byte		*byte;
+	static int	i = 1;
+
+	ft_printf("Iteration = %d\n", i);
+	i++;
+	if (str)
+		msg = ft_strdup(str);
+	if (pid)
+		server_pid = pid;
+	ft_printf("%c\n", msg[index]);
+	if (msg[index])
+	{
+		byte = byte_maker(msg[index]);
+		byte_sender(byte, &server_pid);
+		index++;
+		return (0);
+	}
+	free(msg);
+	ft_printf("Message freed!\n");
+	byte = byte_maker('\0');
+	byte_sender(byte, &server_pid);
+	return (1);
+}
+
+void	handler(int signal, siginfo_t *info, void *ucontext)
+{
+	if (signal == SIGUSR1)
+	{
+		ft_printf("Received\n");
+		send_message(0, 0);
+	}
+	if (signal == SIGUSR2)
+	{
+		ft_printf("Success!\n");
+		exit(0);
+	}
+	(void)info;
+	(void)ucontext;
 }
 
 int	main(int argc, char *argv[])
 {	
-	int	pid;
+	struct sigaction	sigact;
+	sigset_t			set;
+	int					pid;
 
 	if (argc != 3)
-		return(ft_printf("Usage: ./client [PID] [STRING]"));
+		return(ft_printf("Usage: ./client [PID] [STRING]\n"));
 	pid = ft_atoi(argv[1]);
-	send_signals(argv[2], pid);
+	sigemptyset(&set);
+	sigact.sa_mask = set;
+	sigact.sa_flags = 0;
+	sigact.sa_sigaction = handler;
+	sigaction(SIGUSR1, &sigact, NULL);
+	sigaction(SIGUSR2, &sigact, NULL);
+	send_message(argv[2], pid);
+	while (1)
+		pause();
 	return (0);
 }

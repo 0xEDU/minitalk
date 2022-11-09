@@ -2,7 +2,7 @@ NAME = minitalk
 SERVER = server
 CLIENT = client
 
-CCFLAGS = -Wall -Wextra -Werror
+CCFLAGS = -Wall -Wextra -Werror -g3
 LIBDIR = ./libft
 LIB = $(LIBDIR)/libft.a
 

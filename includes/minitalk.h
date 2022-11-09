@@ -6,7 +6,7 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:53:29 by edu               #+#    #+#             */
-/*   Updated: 2022/11/08 06:28:08 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/09 16:45:12 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,10 @@ typedef struct s_byte {
 }				t_byte;
 
 typedef struct s_msg {
-	unsigned char	c;
 	t_byte			*byte;
+	unsigned char	c;
 	int				index;
 	int				init;
-
 }				t_msg;
-
-t_byte	*byte_maker(unsigned char c);
 
 #endif

@@ -6,11 +6,17 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:51:33 by edu               #+#    #+#             */
-/*   Updated: 2022/11/08 08:25:30 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/09 18:35:49 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
+
+void	byte_printer(t_byte *byte)
+{
+	printf("\nBYTE!");
+	printf("\n[%d, %d, %d, %d, %d, %d, %d, %d]\n", byte[0].bit, byte[1].bit, byte[2].bit, byte[3].bit, byte[4].bit, byte[5].bit, byte[6].bit, byte[7].bit);
+}
 
 unsigned char	char_maker(t_byte *byte)
 {
@@ -21,8 +27,8 @@ unsigned char	char_maker(t_byte *byte)
 	c = 0;
 	while (i < 8)
 	{
-		c = c << 1;
-		c = c | byte[i].bit;
+		c <<= 1;
+		c |= byte[i].bit;
 		i++;
 	}
 	return (c);
@@ -31,25 +37,25 @@ unsigned char	char_maker(t_byte *byte)
 void	init_msg(t_msg *msg)
 {
 	msg->init = 1;
-	msg->byte = malloc(sizeof(t_byte) * 8);
 	msg->index = 0;
+	msg->byte = ft_calloc(sizeof(t_byte), 8);
 }
 
 void	reset_msg(t_msg *msg)
 {
 	msg->init = 0;
-	free(msg->byte);
 	msg->index = 0;
+	free(msg->byte);
 }
 
 void	handler(int signal, siginfo_t *info, void *ucontext)
 {
 	static t_msg	msg;
+	int		pid = 0;
 	char			c;
 
-	(void)ucontext;
-	(void)info;
 	c = 0;
+	pid = info->si_pid;
 	if (!msg.init)
 		init_msg(&msg);
 	if (signal == SIGUSR1)
@@ -58,31 +64,30 @@ void	handler(int signal, siginfo_t *info, void *ucontext)
 		msg.byte[msg.index].bit = 1;
 	if (msg.index == 7)
 	{
+		//byte_printer(msg.byte);
 		c = char_maker(msg.byte);
+		if (c == '\0')
+		{
+			kill(pid, SIGUSR2);
+			ft_printf("\n");
+		}
 		write(1, &c, 1);
-		write(1, "\0", 1);
 		reset_msg(&msg);
+		kill(pid, SIGUSR1);
 	}
 	msg.index++;
-	usleep(300);
-}
-
-void	teste(int signal, siginfo_t *info, void *ucontext)
-{
-	(void)info;
 	(void)ucontext;
-	ft_printf("SIGNAL %d RECEIVED\n", signal);
 }
 
 int	main(void)
 {
 	struct sigaction	sigact;
-	sigset_t			set;
+	sigset_t			sigset;
 	
 
-	sigemptyset(&set);
-	sigact.sa_mask = set;
-	sigact.sa_flags = 0;
+	sigemptyset(&sigset);
+	sigact.sa_mask = sigset;
+	sigact.sa_flags = SA_SIGINFO;
 	sigact.sa_sigaction = handler;
 	ft_printf("PID: %d\n", getpid());
 	sigaction(SIGUSR1, &sigact, NULL);
