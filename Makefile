@@ -1,7 +1,7 @@
 NAME = minitalk
 BINARY = client server
 
-CCFLAGS = -Wall -Werror -Wextra
+CCFLAGS = -Wall -Werror -Wextra -g
 
 INCLUDES_PATH = includes
 LIBFT = ./libft/libft.a
