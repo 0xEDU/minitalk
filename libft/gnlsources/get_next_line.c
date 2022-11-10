@@ -6,11 +6,12 @@
 /*   By: coder <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 19:44:35 by coder             #+#    #+#             */
-/*   Updated: 2022/10/14 16:05:45 by edu              ###   ########.fr       */
+/*   Updated: 2022/10/18 18:00:19 by edu              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include "libft.h"
 
 static char	*set_buffer(int fd, char *buffer);
 static char	*get_line(char *buffer);
@@ -37,7 +38,7 @@ static char	*set_buffer(int fd, char *buffer)
 	ssize_t	i;
 
 	i = 0;
-	tmp = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	tmp = gnl_calloc(BUFFER_SIZE + 1, sizeof(char));
 	if (tmp == NULL)
 		return (NULL);
 	while (gnl_strchr(buffer, '\n') != 1)
@@ -69,7 +70,7 @@ static char	*get_line(char *buffer)
 		return (NULL);
 	while (*(buffer + i) != '\0' && *(buffer + i) != '\n')
 		i++;
-	line = ft_calloc(i + (*(buffer + i) == '\n') + 1, sizeof(char));
+	line = gnl_calloc(i + (*(buffer + i) == '\n') + 1, sizeof(char));
 	if (line == NULL)
 		return (NULL);
 	i = 0;
@@ -101,7 +102,7 @@ static char	*go_to_next_line(char *buffer)
 		free(buffer);
 		return (NULL);
 	}
-	next = ft_calloc((ft_strlen(buffer) - i + 1), sizeof(char));
+	next = gnl_calloc((ft_strlen(buffer) - i + 1), sizeof(char));
 	if (next == NULL)
 		return (NULL);
 	i++;

@@ -6,7 +6,7 @@
 #    By: coder <coder@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/27 15:51:38 by coder             #+#    #+#              #
-#    Updated: 2022/10/14 15:50:58 by edu              ###   ########.fr        #
+#    Updated: 2022/11/04 15:21:29 by etachott         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,6 +21,7 @@ PATH_OBJS = .
 CCFLAGS = -Wall -Wextra -Werror
 
 LIBSRCS = $(addprefix $(PATH_LIBSRCS)/, ft_atoi.c \
+       ft_atoi_hex.c   \
 	   ft_bzero.c      \
 	   ft_calloc.c     \
 	   ft_isalnum.c    \
@@ -56,7 +57,8 @@ LIBSRCS = $(addprefix $(PATH_LIBSRCS)/, ft_atoi.c \
 	   ft_toupper.c)
 
 GNLSRCS = $(addprefix $(PATH_GNLSRCS)/, get_next_line.c \
-	   get_next_line_utils.c)
+	   get_next_line_utils1.c \
+	   get_next_line_utils2.c)
 
 FT_PRINTFSRCS = $(addprefix $(PATH_FT_PRINTFSRCS)/, ft_printf.c \
 				ft_printf_utils.c \
@@ -72,22 +74,25 @@ FT_PRINTFOBJS = $(FT_PRINTFSRCS:$(PATH_FT_PRINTFSRCS)/%.c=$(PATH_OBJS)/%.o)
 all: $(NAME)
 
 $(NAME): $(LIBOBJS) $(GNLOBJS) $(FT_PRINTFOBJS)
-	ar rcs $(NAME) $(LIBOBJS) $(GNLOBJS) $(FT_PRINTFOBJS)
-	@rm -f $(LIBOBJS) $(GNLOBJS) $(FT_PRINTFOBJS)
+	@ar rcs $(NAME) $(LIBOBJS) $(GNLOBJS) $(FT_PRINTFOBJS)
+	@echo -e "\033[32m[LIBFT created]\033[0m"
 
 $(LIBOBJS): $(LIBSRCS)
-	$(CC) $(CCFLAGS) -I $(PATH_INCL)/ -c $(LIBSRCS)
+	@$(CC) $(CCFLAGS) -I $(PATH_INCL)/ -c $(LIBSRCS)
 
 $(GNLOBJS): $(GNLSRCS)
-	$(CC) $(CCFLAGS) -D BUFFER_SIZE=1 -I $(PATH_INCL)/ -c $(GNLSRCS)
+	@$(CC) $(CCFLAGS) -D BUFFER_SIZE=1 -I $(PATH_INCL)/ -c $(GNLSRCS)
 
 $(FT_PRINTFOBJS): $(FT_PRINTFSRCS)
-	$(CC) $(CCFLAGS) -I $(PATH_INCL)/ -c $(FT_PRINTFSRCS)
+	@$(CC) $(CCFLAGS) -I $(PATH_INCL)/ -c $(FT_PRINTFSRCS)
 
 clean:
-	/bin/rm -f *.o
+	@/bin/rm -f *.o
+	@echo -e "\033[32m[LIBFT cleaned]\033[0m"
 
 fclean: clean
 	/bin/rm -f $(NAME)
 
 re: fclean all
+
+.PHONY: all clean fclean re
