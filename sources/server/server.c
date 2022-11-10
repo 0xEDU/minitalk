@@ -6,7 +6,7 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:51:33 by edu               #+#    #+#             */
-/*   Updated: 2022/11/10 10:14:48 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/10 12:22:08 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,9 +59,15 @@ void	handler(int signal, siginfo_t *info, void *ucontext)
 	if (!msg.init)
 		init_msg(&msg);
 	if (signal == SIGUSR1)
+	{
 		msg.byte[msg.index].bit = 0;
+		kill(pid, SIGUSR1);
+	}
 	if (signal == SIGUSR2)
+	{
 		msg.byte[msg.index].bit = 1;
+		kill(pid, SIGUSR1);
+	}
 	if (msg.index == 7)
 	{
 		//byte_printer(msg.byte);
@@ -73,8 +79,6 @@ void	handler(int signal, siginfo_t *info, void *ucontext)
 		}
 		write(1, &c, 1);
 		reset_msg(&msg);
-		usleep(8000);
-		kill(pid, SIGUSR1);
 	}
 	msg.index++;
 	(void)ucontext;

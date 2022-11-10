@@ -6,7 +6,7 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:52:31 by edu               #+#    #+#             */
-/*   Updated: 2022/11/10 10:06:37 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/10 12:25:20 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ void	byte_sender(t_byte *byte, int *pid)
 	static int count = 1;
 
 	i = 0;
-	ft_printf("Entrou no sender %d vezes\n", count);
 	count++;
 	while (i < 8)
 	{
@@ -62,40 +61,45 @@ void	byte_sender(t_byte *byte, int *pid)
 	free(byte);
 }
 
+int	terminate_string(int pid)
+{	
+	static int	index = 0;
+
+	if (index++ != 8)
+	{
+		kill(pid, SIGUSR1);
+		return (0);
+	}
+	return (1);
+}
+
 int	send_message(char *str, int pid)
 {
 	static char	*msg = 0;
 	static int	server_pid = 0;
-	static int	index = 0;
-	t_byte		*byte;
-	static int	i = 1;
+	static int	index = -1;
 
-	ft_printf("Index = %d\n", index);
 	if (str)
-	{
-		ft_printf("Entrou no if str\n");
 		msg = ft_strdup(str);
-	}
 	if (pid)
-	{
-		ft_printf("Entrou no if pid\n");
 		server_pid = pid;
-	}
-	ft_printf("%c\n", msg[index]);
-	if (msg[index])
+	if (msg[++index / 8])
 	{
-		ft_printf("Iteration dentro do if = %d\n", i);
-		i++;
-		byte = byte_maker(msg[index]);
-		byte_sender(byte, &server_pid);
-		ft_printf("Index dentro do if: %d\n", index);
-		index++;
+		if (msg[index / 8] & (128 >> (index % 8)))
+		{
+			kill(server_pid, SIGUSR2);
+			usleep(100);
+		}
+		else
+		{
+			kill(server_pid, SIGUSR1);
+			usleep(100);
+		}
 		return (0);
 	}
+	if (!terminate_string(server_pid))
+		return (0);
 	free(msg);
-	ft_printf("Message freed!\n");
-	byte = byte_maker('\0');
-	byte_sender(byte, &server_pid);
 	return (1);
 }
 
@@ -103,7 +107,7 @@ void	handler(int signal, siginfo_t *info, void *ucontext)
 {
 	if (signal == SIGUSR1)
 	{
-		ft_printf("Received\n");
+		ft_printf("Received signal!");
 		send_message(0, 0);
 	}
 	if (signal == SIGUSR2)
