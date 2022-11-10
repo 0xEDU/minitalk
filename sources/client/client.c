@@ -6,7 +6,7 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:52:31 by edu               #+#    #+#             */
-/*   Updated: 2022/11/10 12:30:21 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/10 13:11:27 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,18 @@ void	better_kill(int pid, int signal)
 	usleep(100);
 }
 
-int	terminate_string(int pid)
+int	terminate_string(int pid, char *msg)
 {	
 	static int	index = 0;
 
+	ft_printf("MSG = %s\n", msg);
 	if (index++ != 8)
 	{
+		if (index == 7)
+		{
+			ft_printf("MESSAGE FREED\n");
+			free(msg);
+		}
 		kill(pid, SIGUSR1);
 		return (0);
 	}
@@ -48,9 +54,9 @@ int	send_message(char *str, int pid)
 			better_kill(server_pid, SIGUSR1);
 		return (0);
 	}
-	if (!terminate_string(server_pid))
+	if (!terminate_string(server_pid, msg))
 		return (0);
-	free(msg);
+	ft_printf("CHEGOU AQUI\n");
 	return (1);
 }
 
