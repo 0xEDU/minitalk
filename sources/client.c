@@ -6,7 +6,7 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:52:31 by edu               #+#    #+#             */
-/*   Updated: 2022/11/10 13:11:27 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/10 17:39:27 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,9 @@ int	terminate_string(int pid, char *msg)
 {	
 	static int	index = 0;
 
-	ft_printf("MSG = %s\n", msg);
+	ft_printf("%p\n", msg);
 	if (index++ != 8)
 	{
-		if (index == 7)
-		{
-			ft_printf("MESSAGE FREED\n");
-			free(msg);
-		}
 		kill(pid, SIGUSR1);
 		return (0);
 	}
@@ -44,6 +39,8 @@ int	send_message(char *str, int pid)
 
 	if (str)
 		msg = ft_strdup(str);
+	if (!msg)
+		ft_printf("abacate\n");
 	if (pid)
 		server_pid = pid;
 	if (msg[++index / 8])
@@ -56,18 +53,18 @@ int	send_message(char *str, int pid)
 	}
 	if (!terminate_string(server_pid, msg))
 		return (0);
-	ft_printf("CHEGOU AQUI\n");
+	free(msg);
 	return (1);
 }
 
 void	handler(int signal, siginfo_t *info, void *ucontext)
 {
+	int	end;
+
+	end = 0;
 	if (signal == SIGUSR1)
-	{
-		ft_printf("Received signal!\n");
-		send_message(0, 0);
-	}
-	if (signal == SIGUSR2)
+		end = send_message(0, 0);
+	if (end)
 	{
 		ft_printf("Success!\n");
 		exit(0);
