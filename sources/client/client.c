@@ -6,59 +6,16 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:52:31 by edu               #+#    #+#             */
-/*   Updated: 2022/11/10 12:25:20 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/10 12:30:21 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-void	byte_printer(t_byte *byte)
+void	better_kill(int pid, int signal)
 {
-	printf("\nBYTE!");
-	printf("\n[%d, %d, %d, %d, %d, %d, %d, %d]\n", byte[0].bit, byte[1].bit, byte[2].bit, byte[3].bit, byte[4].bit, byte[5].bit, byte[6].bit, byte[7].bit);
-}
-
-t_byte	*byte_maker(unsigned char c)
-{
-	t_byte	*byte;
-	int		i;
-
-	i = 7;
-	byte = malloc(sizeof(t_byte) * 8);
-	while (i > -1)
-	{
-		if (c & 1)
-			byte[i].bit = 1;
-		else
-			byte[i].bit = 0;
-		c >>= 1;
-		i--;
-	}
-	return (byte);
-}
-
-void	byte_sender(t_byte *byte, int *pid)
-{
-	int	i;
-	static int count = 1;
-
-	i = 0;
-	count++;
-	while (i < 8)
-	{
-		if (!byte[i].bit)
-		{
-			kill(*pid, SIGUSR1);
-			usleep(700);
-		}
-		else
-		{
-			kill(*pid, SIGUSR2);
-			usleep(700);
-		}
-		i++;
-	}
-	free(byte);
+	kill(pid, signal);
+	usleep(100);
 }
 
 int	terminate_string(int pid)
@@ -86,15 +43,9 @@ int	send_message(char *str, int pid)
 	if (msg[++index / 8])
 	{
 		if (msg[index / 8] & (128 >> (index % 8)))
-		{
-			kill(server_pid, SIGUSR2);
-			usleep(100);
-		}
+			better_kill(server_pid, SIGUSR2);
 		else
-		{
-			kill(server_pid, SIGUSR1);
-			usleep(100);
-		}
+			better_kill(server_pid, SIGUSR1);
 		return (0);
 	}
 	if (!terminate_string(server_pid))
@@ -107,7 +58,7 @@ void	handler(int signal, siginfo_t *info, void *ucontext)
 {
 	if (signal == SIGUSR1)
 	{
-		ft_printf("Received signal!");
+		ft_printf("Received signal!\n");
 		send_message(0, 0);
 	}
 	if (signal == SIGUSR2)
@@ -126,7 +77,7 @@ int	main(int argc, char *argv[])
 	int					pid;
 
 	if (argc != 3)
-		return(ft_printf("Usage: ./client [PID] [STRING]\n"));
+		return (ft_printf("Usage: ./client [PID] [STRING]\n"));
 	pid = ft_atoi(argv[1]);
 	sigemptyset(&set);
 	sigact.sa_mask = set;

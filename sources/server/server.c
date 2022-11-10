@@ -6,22 +6,16 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:51:33 by edu               #+#    #+#             */
-/*   Updated: 2022/11/10 12:22:08 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/10 12:44:44 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-void	byte_printer(t_byte *byte)
-{
-	printf("\nBYTE!");
-	printf("\n[%d, %d, %d, %d, %d, %d, %d, %d]\n", byte[0].bit, byte[1].bit, byte[2].bit, byte[3].bit, byte[4].bit, byte[5].bit, byte[6].bit, byte[7].bit);
-}
-
 unsigned char	char_maker(t_byte *byte)
 {
 	unsigned char	c;
-	int 			i;
+	int				i;
 
 	i = 0;
 	c = 0;
@@ -34,30 +28,44 @@ unsigned char	char_maker(t_byte *byte)
 	return (c);
 }
 
-void	init_msg(t_msg *msg)
+void	msg_setter(t_msg *msg, char flag)
 {
-	msg->init = 1;
-	msg->index = 0;
-	msg->byte = ft_calloc(sizeof(t_byte), 8);
+	if (flag == 'i')
+	{
+		msg->init = 1;
+		msg->index = 0;
+		msg->byte = ft_calloc(sizeof(t_byte), 8);
+	}
+	else if (flag == 'r')
+	{
+		msg->init = 0;
+		msg->index = 0;
+		free(msg->byte);
+	}
 }
 
-void	reset_msg(t_msg *msg)
+void	end_byte(t_msg *msg, char c, int pid)
 {
-	msg->init = 0;
-	msg->index = 0;
-	free(msg->byte);
+	c = char_maker(msg->byte);
+	if (c == '\0')
+	{
+		kill(pid, SIGUSR2);
+		ft_printf("\n");
+	}
+	write(1, &c, 1);
+	msg_setter(msg, 'r');
 }
 
 void	handler(int signal, siginfo_t *info, void *ucontext)
 {
 	static t_msg	msg;
-	int		pid = 0;
+	int				pid;
 	char			c;
 
 	c = 0;
 	pid = info->si_pid;
 	if (!msg.init)
-		init_msg(&msg);
+		msg_setter(&msg, 'i');
 	if (signal == SIGUSR1)
 	{
 		msg.byte[msg.index].bit = 0;
@@ -69,17 +77,7 @@ void	handler(int signal, siginfo_t *info, void *ucontext)
 		kill(pid, SIGUSR1);
 	}
 	if (msg.index == 7)
-	{
-		//byte_printer(msg.byte);
-		c = char_maker(msg.byte);
-		if (c == '\0')
-		{
-			kill(pid, SIGUSR2);
-			ft_printf("\n");
-		}
-		write(1, &c, 1);
-		reset_msg(&msg);
-	}
+		end_byte(&msg, c, pid);
 	msg.index++;
 	(void)ucontext;
 }
@@ -88,7 +86,6 @@ int	main(void)
 {
 	struct sigaction	sigact;
 	sigset_t			sigset;
-	
 
 	sigemptyset(&sigset);
 	sigact.sa_mask = sigset;
