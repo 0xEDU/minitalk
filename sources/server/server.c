@@ -6,7 +6,7 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:51:33 by edu               #+#    #+#             */
-/*   Updated: 2022/11/09 18:35:49 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/10 10:14:48 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ void	handler(int signal, siginfo_t *info, void *ucontext)
 		}
 		write(1, &c, 1);
 		reset_msg(&msg);
+		usleep(8000);
 		kill(pid, SIGUSR1);
 	}
 	msg.index++;

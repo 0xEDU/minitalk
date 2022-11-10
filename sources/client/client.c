@@ -6,7 +6,7 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:52:31 by edu               #+#    #+#             */
-/*   Updated: 2022/11/09 18:44:39 by etachott         ###   ########.fr       */
+/*   Updated: 2022/11/10 10:06:37 by etachott         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,11 @@ t_byte	*byte_maker(unsigned char c)
 void	byte_sender(t_byte *byte, int *pid)
 {
 	int	i;
+	static int count = 1;
 
 	i = 0;
+	ft_printf("Entrou no sender %d vezes\n", count);
+	count++;
 	while (i < 8)
 	{
 		if (!byte[i].bit)
@@ -67,17 +70,25 @@ int	send_message(char *str, int pid)
 	t_byte		*byte;
 	static int	i = 1;
 
-	ft_printf("Iteration = %d\n", i);
-	i++;
+	ft_printf("Index = %d\n", index);
 	if (str)
+	{
+		ft_printf("Entrou no if str\n");
 		msg = ft_strdup(str);
+	}
 	if (pid)
+	{
+		ft_printf("Entrou no if pid\n");
 		server_pid = pid;
+	}
 	ft_printf("%c\n", msg[index]);
 	if (msg[index])
 	{
+		ft_printf("Iteration dentro do if = %d\n", i);
+		i++;
 		byte = byte_maker(msg[index]);
 		byte_sender(byte, &server_pid);
+		ft_printf("Index dentro do if: %d\n", index);
 		index++;
 		return (0);
 	}
