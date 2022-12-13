@@ -6,7 +6,7 @@ CCFLAGS = -Wall -Werror -Wextra -g
 INCLUDES_PATH = includes
 LIBFT = ./libft/libft.a
 
-SRCS = ./sources/client.c ./sorces/server.c
+SRCS = ./sources/client.c ./sources/server.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)
