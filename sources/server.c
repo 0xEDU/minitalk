@@ -6,51 +6,30 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:51:33 by edu               #+#    #+#             */
-/*   Updated: 2022/11/10 17:52:39 by etachott         ###   ########.fr       */
+/*   Updated: 2024/02/21 21:46:48 by etachott         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-void	msg_setter(t_msg *msg, char flag)
-{
-	if (flag == 'i')
-	{
-		msg->init = 1;
-		msg->index = 0;
-	}
-	else if (flag == 'r')
-	{
-		msg->init = 0;
-		msg->index = 0;
-	}
-}
-
-void	end_byte(t_msg *msg, char *c)
-{
-	if (*c == '\0')
-		ft_printf("\n");
-	write(1, c, 1);
-	*c = 0xFF;
-	msg_setter(msg, 'r');
-}
-
 void	handler(int signal, siginfo_t *info, void *ucontext)
 {
 	static char		c = 0xFF;
-	static t_msg	msg;
-	int				pid;
+	static int		index = 0;
+	const int		pid = info->si_pid;
 
-	pid = info->si_pid;
-	if (!msg.init)
-		msg_setter(&msg, 'i');
 	if (signal == SIGUSR1)
-		c ^= 0x80 >> msg.index;
+		c ^= 0x80 >> index++;
 	if (signal == SIGUSR2)
-		c |= 0x80 >> msg.index;
-	if (msg.index == 7)
-		end_byte(&msg, &c);
-	msg.index++;
+		c |= 0x80 >> index++;
+	if (index == 8)
+	{
+		if (c == '\0')
+			ft_printf("\n");
+		write(1, &c, 1);
+		c = 0xFF;
+		index = 0;
+	}
 	kill(pid, SIGUSR1);
 	(void)ucontext;
 }
