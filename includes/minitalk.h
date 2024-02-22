@@ -6,7 +6,7 @@
 /*   By: edu <marvin@42.fr>                         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:53:29 by edu               #+#    #+#             */
-/*   Updated: 2022/11/09 16:45:12 by etachott         ###   ########.fr       */
+/*   Updated: 2024/02/21 21:54:13 by etachott         ###   ########.org.br   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,5 @@
 # include <signal.h>
 # include <unistd.h>
 # include <stdio.h>	
-
-typedef struct s_byte {
-	unsigned int	bit : 1;
-}				t_byte;
-
-typedef struct s_msg {
-	t_byte			*byte;
-	unsigned char	c;
-	int				index;
-	int				init;
-}				t_msg;
 
 #endif
